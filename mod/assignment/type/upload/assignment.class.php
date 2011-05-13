@@ -440,7 +440,7 @@ class assignment_upload extends assignment_base {
     function upload_notes() {
         global $CFG, $USER, $OUTPUT, $DB;
 
-        $action = required_param('action', PARAM_ALPHA);
+        $action = required_param('action', PARAM_ALPHAz);
 
         $returnurl  = new moodle_url('/mod/assignment/view.php', array('id'=>$this->cm->id));
 
@@ -734,6 +734,19 @@ class assignment_upload extends assignment_base {
             add_to_log($this->course->id, 'assignment', 'view submission', 'submissions.php?id='.$this->assignment->id, $this->assignment->id, $this->cm->id);
             $submission = $this->get_submission($userid);
             $this->update_grade($submission);
+
+	    // Custom UNE trigger to allow a tie in to the 'revert to draft' event on an assignment.
+	    $eventdata = new stdClass();
+	    $eventdata->modulename   = 'assignment';
+	    $eventdata->cmid         = $this->cm->id;
+	    $eventdata->itemid       = $submission->id;
+	    $eventdata->courseid     = $this->course->id;
+	    $eventdata->userid       = $userid;
+	    events_trigger('submission_reverted', $eventdata);
+
+	    if ($forcemode==null) {
+		redirect($returnurl->out(false));
+	    }
         }
 
         if ($forcemode==null) {
