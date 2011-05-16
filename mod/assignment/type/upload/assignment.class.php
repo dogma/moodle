@@ -331,7 +331,7 @@ class assignment_upload extends assignment_base {
         }
 
         if ($this->drafts_tracked() and $this->isopen() and has_capability('mod/assignment:grade', $this->context) and $mode != '') { // we do not want it on view.php page
-            if ($this->can_unfinalize($submission)) {
+	    if ($this->can_unfinalize($submission)) {
                 //$options = array ('id'=>$this->cm->id, 'userid'=>$userid, 'action'=>'unfinalize', 'mode'=>$mode, 'offset'=>$offset);
                 $output .= '<br /><input type="submit" name="unfinalize" value="'.get_string('unfinalize', 'assignment').'" />';
                 $output .=  $OUTPUT->help_icon('unfinalize', 'assignment');
@@ -932,6 +932,10 @@ class assignment_upload extends assignment_base {
     }
 
     function can_unfinalize($submission) {
+	if(is_bool($submission)) {
+	    return false;
+	}
+
         if (!$this->drafts_tracked()) {
             return false;
         }
@@ -946,6 +950,11 @@ class assignment_upload extends assignment_base {
 
     function can_finalize($submission) {
         global $USER;
+
+	if(is_bool($submission)) {
+	    return false;
+	}
+
         if (!$this->drafts_tracked()) {
             return false;
         }
